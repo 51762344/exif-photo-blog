@@ -20,6 +20,8 @@ const HOSTNAME_AWS_S3 =
     ? `${process.env.NEXT_PUBLIC_AWS_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com`
     : undefined;
 
+const HOSTNAME_ALIYUN_OSS = process.env.NEXT_PUBLIC_ALIYUN_OSS_DOMAIN;
+
 const generateRemotePattern = (hostname: string) =>
   ({
     protocol: 'https',
@@ -39,10 +41,15 @@ if (HOSTNAME_CLOUDFLARE_R2) {
 if (HOSTNAME_AWS_S3) {
   remotePatterns.push(generateRemotePattern(HOSTNAME_AWS_S3));
 }
+if (HOSTNAME_ALIYUN_OSS) {
+  remotePatterns.push(generateRemotePattern(HOSTNAME_ALIYUN_OSS));
+}
 
 const nextConfig: NextConfig = {
   images: {
-    imageSizes: [200],
+    imageSizes: [50, 200, 300, 640, 750, 828, 1080, 1200, 1920, 2048],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    formats: ['image/webp', 'image/avif'],
     remotePatterns,
     minimumCacheTTL: 31536000,
   },
