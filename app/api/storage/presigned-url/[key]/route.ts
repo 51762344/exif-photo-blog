@@ -7,6 +7,10 @@ import {
   cloudflareR2Client,
   cloudflareR2PutObjectCommandForKey,
 } from '@/platforms/storage/cloudflare-r2';
+import {
+  aliyunOssClient,
+  aliyunOssPutObjectCommandForKey,
+} from '@/platforms/storage/aliyun-oss';
 import { CURRENT_STORAGE } from '@/app/config';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -18,13 +22,30 @@ export async function GET(
 
   const session = await auth();
   if (session?.user && key) {
+    let client;
+    let command;
+    
+    switch (CURRENT_STORAGE) {
+      case 'cloudflare-r2':
+        client = cloudflareR2Client();
+        command = cloudflareR2PutObjectCommandForKey(key);
+        break;
+      case 'aws-s3':
+        client = awsS3Client();
+        command = awsS3PutObjectCommandForKey(key);
+        break;
+      case 'aliyun-oss':
+        client = aliyunOssClient();
+        command = aliyunOssPutObjectCommandForKey(key);
+        break;
+      default:
+        client = awsS3Client();
+        command = awsS3PutObjectCommandForKey(key);
+    }
+    
     const url = await getSignedUrl(
-      CURRENT_STORAGE === 'cloudflare-r2'
-        ? cloudflareR2Client()
-        : awsS3Client(),
-      CURRENT_STORAGE === 'cloudflare-r2'
-        ? cloudflareR2PutObjectCommandForKey(key)
-        : awsS3PutObjectCommandForKey(key),
+      client,
+      command,
       { expiresIn: 3600 },
     );
     return new Response(

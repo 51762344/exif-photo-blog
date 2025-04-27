@@ -175,10 +175,21 @@ export const HAS_AWS_S3_STORAGE =
   Boolean(process.env.AWS_S3_ACCESS_KEY) &&
   Boolean(process.env.AWS_S3_SECRET_ACCESS_KEY);
 
+// STORAGE: Aliyun OSS
+// Includes separate check for client-side usage, i.e., url construction
+export const HAS_ALIYUN_OSS_STORAGE_CLIENT =
+  Boolean(process.env.NEXT_PUBLIC_ALIYUN_OSS_BUCKET) &&
+  Boolean(process.env.NEXT_PUBLIC_ALIYUN_OSS_REGION);
+export const HAS_ALIYUN_OSS_STORAGE =
+  HAS_ALIYUN_OSS_STORAGE_CLIENT &&
+  Boolean(process.env.ALIYUN_OSS_ACCESS_KEY) &&
+  Boolean(process.env.ALIYUN_OSS_SECRET_ACCESS_KEY);
+
 export const HAS_MULTIPLE_STORAGE_PROVIDERS = [
   HAS_VERCEL_BLOB_STORAGE,
   HAS_CLOUDFLARE_R2_STORAGE,
   HAS_AWS_S3_STORAGE,
+  HAS_ALIYUN_OSS_STORAGE,
 ].filter(Boolean).length > 1;
 
 // Storage preference requires client-available keys
@@ -189,7 +200,9 @@ export const CURRENT_STORAGE: StorageType =
       ? 'cloudflare-r2'
       : HAS_AWS_S3_STORAGE_CLIENT
         ? 'aws-s3'
-        : 'vercel-blob'
+        : HAS_ALIYUN_OSS_STORAGE_CLIENT
+          ? 'aliyun-oss'
+          : 'vercel-blob'
   );
 
 // AI
@@ -322,10 +335,12 @@ export const APP_CONFIGURATION = {
   hasVercelBlobStorage: HAS_VERCEL_BLOB_STORAGE,
   hasCloudflareR2Storage: HAS_CLOUDFLARE_R2_STORAGE,
   hasAwsS3Storage: HAS_AWS_S3_STORAGE,
+  hasAliyunOssStorage: HAS_ALIYUN_OSS_STORAGE,
   hasStorageProvider: (
     HAS_VERCEL_BLOB_STORAGE ||
     HAS_CLOUDFLARE_R2_STORAGE ||
-    HAS_AWS_S3_STORAGE
+    HAS_AWS_S3_STORAGE ||
+    HAS_ALIYUN_OSS_STORAGE
   ),
   hasMultipleStorageProviders: HAS_MULTIPLE_STORAGE_PROVIDERS,
   currentStorage: CURRENT_STORAGE,
