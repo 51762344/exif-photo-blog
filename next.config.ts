@@ -1,6 +1,7 @@
 import { removeUrlProtocol } from '@/utility/url';
 import type { NextConfig } from 'next';
 import { RemotePattern } from 'next/dist/shared/lib/image-config';
+import path from 'path';
 
 const VERCEL_BLOB_STORE_ID = process.env.BLOB_READ_WRITE_TOKEN?.match(
   /^vercel_blob_rw_([a-z0-9]+)_[a-z0-9]+$/i,
@@ -45,6 +46,10 @@ if (HOSTNAME_ALIYUN_OSS) {
   remotePatterns.push(generateRemotePattern(HOSTNAME_ALIYUN_OSS));
 }
 
+const LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'en-us';
+const LOCALE_ALIAS = './date-fns-locale-alias';
+const LOCALE_DYNAMIC = `i18n/locales/${LOCALE}`;
+
 const nextConfig: NextConfig = {
   images: {
     imageSizes: [50, 200, 300, 640, 750, 828, 1080, 1200, 1920, 2048],
@@ -52,6 +57,18 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     remotePatterns,
     minimumCacheTTL: 31536000,
+  },
+  turbopack: {
+    resolveAlias: {
+      [LOCALE_ALIAS]: `@/${LOCALE_DYNAMIC}`,
+    },
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      [LOCALE_ALIAS]: path.resolve(__dirname, `src/${LOCALE_DYNAMIC}`),
+    };
+    return config;
   },
 };
 

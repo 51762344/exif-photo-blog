@@ -12,6 +12,7 @@ export default function ClearCacheButton() {
     <form action={clearCacheAction}>
       <SubmitButtonWithStatus
         icon={<BiTrash size={16} />}
+        hideText="never"
         onFormSubmit={invalidateSwr}
       >
         Clear Cache

@@ -123,9 +123,13 @@ export const parsePhotoFromDb = (photoDbRaw: PhotoDb): Photo => {
     ...photoDb,
     tags: photoDb.tags ?? [],
     focalLengthFormatted:
-      formatFocalLength(photoDb.focalLength),
+      photoDb.focalLength
+        ? formatFocalLength(photoDb.focalLength)
+        : undefined,
     focalLengthIn35MmFormatFormatted:
-      formatFocalLength(photoDb.focalLengthIn35MmFormat),
+      photoDb.focalLengthIn35MmFormat
+        ? formatFocalLength(photoDb.focalLengthIn35MmFormat)
+        : undefined,
     fNumberFormatted:
       formatAperture(photoDb.fNumber),
     isoFormatted:
@@ -171,7 +175,12 @@ export const photoStatsAsString = (photo: Photo) => [
   photo.isoFormatted,
 ].join(' ');
 
-export const descriptionForPhoto = (photo: Photo) =>
+export const descriptionForPhoto = (
+  photo: Photo,
+  includeSemanticDescription?: boolean,
+) =>
+  photo.caption ||
+  (includeSemanticDescription && photo.semanticDescription) ||
   formatDate({ date: photo.takenAt }).toLocaleUpperCase();
 
 export const getPreviousPhoto = (photo: Photo, photos: Photo[]) => {

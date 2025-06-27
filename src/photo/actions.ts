@@ -85,21 +85,116 @@ export const createPhotoAction = async (formData: FormData) =>
     }
   });
 
-export const addAllUploadsAction = async ({
-  uploadUrls,
+// Helper function for:
+// - addUploadAction
+// - addUploadsAction
+const addUpload = async ({
+  url,
+  title,
   tags,
   favorite,
   hidden,
   takenAtLocal,
   takenAtNaiveLocal,
-  shouldRevalidateAllKeysAndPaths = true,
-}: {
-  uploadUrls: string[]
+  onStreamUpdate,
+  onFinish,
+}:{
+  url: string
+  title?: string
   tags?: string
   favorite?: string
   hidden?: string
   takenAtLocal: string
   takenAtNaiveLocal: string
+  onStreamUpdate?: (
+    statusMessage: string,
+    status?: UrlAddStatus['status'],
+  ) => void
+  onFinish?: (url: string) => void
+}) => {
+  const {
+    formDataFromExif,
+    imageResizedBase64,
+    shouldStripGpsData,
+    fileBytes,
+  } = await extractImageDataFromBlobPath(url, {
+    includeInitialPhotoFields: true,
+    generateBlurData: BLUR_ENABLED,
+    generateResizedImage: AI_TEXT_GENERATION_ENABLED,
+  });
+
+  if (formDataFromExif) {
+    if (AI_TEXT_GENERATION_ENABLED) {
+      onStreamUpdate?.('Generating AI text');
+    }
+
+    const {
+      title: aiTitle,
+      caption,
+      tags: aiTags,
+      semanticDescription,
+    } = await generateAiImageQueries(
+      imageResizedBase64,
+      Boolean(title)
+        ? AI_TEXT_AUTO_GENERATED_FIELDS
+          .filter(field => field !== 'title')
+        : AI_TEXT_AUTO_GENERATED_FIELDS,
+      title,
+    );
+
+    const form: Partial<PhotoFormData> = {
+      ...formDataFromExif,
+      title: title || aiTitle,
+      caption,
+      tags: tags || aiTags,
+      hidden,
+      favorite,
+      semanticDescription,
+      takenAt: formDataFromExif.takenAt || takenAtLocal,
+      takenAtNaive: formDataFromExif.takenAtNaive || takenAtNaiveLocal,
+    };
+
+    onStreamUpdate?.('Transferring to photo storage');
+
+    const updatedUrl = await convertUploadToPhoto({
+      urlOrigin: url,
+      fileBytes,
+      shouldStripGpsData,
+    });
+    if (updatedUrl) {
+      const subheadFinal = 'Adding to database';
+      onStreamUpdate?.(subheadFinal);
+      const photo =
+        await convertFormDataToPhotoDbInsertAndLookupRecipeTitle(form);
+      photo.url = updatedUrl;
+      await insertPhoto(photo);
+      onFinish?.(url);
+      // Re-submit with updated url
+      onStreamUpdate?.(subheadFinal, 'added');
+    }
+  }
+};
+
+export const addUploadAction = async (args: Parameters<typeof addUpload>[0]) =>
+  runAuthenticatedAdminServerAction(async () => {
+    await addUpload(args);
+  });
+
+export const addUploadsAction = async ({
+  uploadUrls,
+  uploadTitles,
+  shouldRevalidateAllKeysAndPaths = true,
+  tags,
+  favorite,
+  hidden,
+  takenAtLocal,
+  takenAtNaiveLocal,
+}: Omit<
+  Parameters<typeof addUpload>[0],
+  'url' | 'onStreamUpdate' | 'onFinish'
+> & {
+  uploadUrls: string[]
+  uploadTitles: string[]
   shouldRevalidateAllKeysAndPaths?: boolean
 }) =>
   runAuthenticatedAdminServerAction(async () => {
@@ -124,68 +219,25 @@ export const addAllUploadsAction = async ({
 
     (async () => {
       try {
-        for (const url of uploadUrls) {
+        for (const [index, url] of uploadUrls.entries()) {
           currentUploadUrl = url;
           progress = 0;
+          const title = uploadTitles[index];
           streamUpdate('Parsing EXIF data');
 
-          const {
-            formDataFromExif,
-            imageResizedBase64,
-            shouldStripGpsData,
-            fileBytes,
-          } = await extractImageDataFromBlobPath(url, {
-            includeInitialPhotoFields: true,
-            generateBlurData: BLUR_ENABLED,
-            generateResizedImage: AI_TEXT_GENERATION_ENABLED,
-          });
-
-          if (formDataFromExif) {
-            if (AI_TEXT_GENERATION_ENABLED) {
-              streamUpdate('Generating AI text');
-            }
-
-            const {
-              title,
-              caption,
-              tags: aiTags,
-              semanticDescription,
-            } = await generateAiImageQueries(
-              imageResizedBase64,
-              AI_TEXT_AUTO_GENERATED_FIELDS,
-            );
-
-            const form: Partial<PhotoFormData> = {
-              ...formDataFromExif,
-              title,
-              caption,
-              tags: tags || aiTags,
-              hidden,
-              favorite,
-              semanticDescription,
-              takenAt: formDataFromExif.takenAt || takenAtLocal,
-              takenAtNaive: formDataFromExif.takenAtNaive || takenAtNaiveLocal,
-            };
-
-            streamUpdate('Transferring to photo storage');
-
-            const updatedUrl = await convertUploadToPhoto({
-              urlOrigin: url,
-              fileBytes,
-              shouldStripGpsData,
-            });
-            if (updatedUrl) {
-              const subheadFinal = 'Adding to database';
-              streamUpdate(subheadFinal);
-              const photo =
-                await convertFormDataToPhotoDbInsertAndLookupRecipeTitle(form);
-              photo.url = updatedUrl;
-              await insertPhoto(photo);
+          await addUpload({
+            url,
+            title,
+            tags,
+            favorite,
+            hidden,
+            takenAtLocal,
+            takenAtNaiveLocal,
+            onStreamUpdate: streamUpdate,
+            onFinish: () => {
               addedUploadUrls.push(url);
-              // Re-submit with updated url
-              streamUpdate(subheadFinal, 'added');
-            }
-          }
+            },
+          });
         };
       } catch (error: any) {
         // eslint-disable-next-line max-len
@@ -429,6 +481,7 @@ export const syncPhotoAction = async (photoId: string, isBatch?: boolean) =>
         } = await generateAiImageQueries(
           imageResizedBase64,
           photo.syncStatus.missingAiTextFields,
+          undefined,
           isBatch,
         );
 
@@ -477,12 +530,13 @@ export const clearCacheAction = async () =>
 export const streamAiImageQueryAction = async (
   imageBase64: string,
   query: AiImageQuery,
+  existingTitle?: string,
 ) =>
   runAuthenticatedAdminServerAction(async () => {
     const existingTags = await getUniqueTags();
     return streamOpenAiImageQuery(
       imageBase64,
-      getAiImageQuery(query, existingTags),
+      getAiImageQuery(query, existingTags, existingTitle),
     );
   });
 

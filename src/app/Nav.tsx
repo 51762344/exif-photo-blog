@@ -26,9 +26,11 @@ const NAV_HEIGHT_CLASS = NAV_CAPTION
   : 'min-h-[4rem]';
 
 export default function Nav({
-  navTitleOrDomain,
+  navTitle,
+  navCaption,
 }: {
-  navTitleOrDomain: string;
+  navTitle: string
+  navCaption?: string
 }) {
   const ref = useRef<HTMLElement>(null);
 
@@ -82,21 +84,21 @@ export default function Nav({
               )}>
               <AppViewSwitcher
                 currentSelection={switcherSelectionForPath()}
+                className="translate-x-[-1px]"
               />
               <div className={clsx(
                 'grow text-right min-w-0',
-                'hidden xs:block',
                 'translate-y-[-1px]',
               )}>
                 <div className="truncate overflow-hidden select-none">
-                  {renderLink(navTitleOrDomain, PATH_ROOT)}
+                  {renderLink(navTitle, PATH_ROOT)}
                 </div>
-                {NAV_CAPTION &&
+                {navCaption &&
                   <div className={clsx(
                     'hidden sm:block truncate overflow-hidden',
                     'leading-tight text-dim',
                   )}>
-                    {NAV_CAPTION}
+                    {navCaption}
                   </div>}
               </div>
             </nav>]

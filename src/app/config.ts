@@ -107,7 +107,7 @@ export const APP_LOCALE = (process.env.NEXT_PUBLIC_LOCALE || 'en-us')
   .replace('_', '-');
 export const HTML_LANG = (APP_LOCALE.split('-')[1] || 'en');
 
-export const NAV_TITLE =
+export const CUSTOM_NAV_TITLE =
   process.env.NEXT_PUBLIC_NAV_TITLE;
 
 export const NAV_CAPTION =
@@ -119,14 +119,14 @@ export const META_TITLE =
   process.env.NEXT_PUBLIC_META_TITLE ||
   // Legacy environment variable
   process.env.NEXT_PUBLIC_SITE_TITLE ||
-  NAV_TITLE ||
+  CUSTOM_NAV_TITLE ||
   TEMPLATE_TITLE;
 
 export const IS_META_TITLE_CONFIGURED =
   Boolean(process.env.NEXT_PUBLIC_META_TITLE) ||
   // Legacy environment variable
   Boolean(process.env.NEXT_PUBLIC_SITE_TITLE) ||
-  Boolean(NAV_TITLE);
+  Boolean(CUSTOM_NAV_TITLE);
 
 export const IS_META_DESCRIPTION_CONFIGURED =
   Boolean(process.env.NEXT_PUBLIC_META_DESCRIPTION) ||
@@ -135,10 +135,10 @@ export const IS_META_DESCRIPTION_CONFIGURED =
 export const META_DESCRIPTION =
   process.env.NEXT_PUBLIC_META_DESCRIPTION ||
   NAV_CAPTION ||
-  SITE_DOMAIN;
+  SITE_DOMAIN_SHORT;
 
-export const NAV_TITLE_OR_DOMAIN =
-  NAV_TITLE ||
+export const NAV_TITLE =
+  CUSTOM_NAV_TITLE ||
   SITE_DOMAIN_SHORT ||
   META_TITLE;
 
@@ -253,7 +253,6 @@ export const IMAGE_QUALITY =
 export const BLUR_ENABLED =
   process.env.NEXT_PUBLIC_BLUR_DISABLED !== '1';
 
-
 // VISUAL
 
 export const DEFAULT_THEME =
@@ -291,6 +290,8 @@ export const SHOW_KEYBOARD_SHORTCUT_TOOLTIPS =
   process.env.NEXT_PUBLIC_HIDE_KEYBOARD_SHORTCUT_TOOLTIPS !== '1';
 export const SHOW_EXIF_DATA =
   process.env.NEXT_PUBLIC_HIDE_EXIF_DATA !== '1';
+export const SHOW_CATEGORY_IMAGE_HOVERS =
+  process.env.NEXT_PUBLIC_CATEGORY_IMAGE_HOVERS === '1';
 export const SHOW_ZOOM_CONTROLS =
   process.env.NEXT_PUBLIC_HIDE_ZOOM_CONTROLS !== '1';
 export const SHOW_TAKEN_AT_TIME =
@@ -320,8 +321,8 @@ export const GEO_PRIVACY_ENABLED =
   process.env.NEXT_PUBLIC_GEO_PRIVACY === '1';
 export const ALLOW_PUBLIC_DOWNLOADS = 
   process.env.NEXT_PUBLIC_ALLOW_PUBLIC_DOWNLOADS === '1';
-export const PUBLIC_API_ENABLED =
-  process.env.NEXT_PUBLIC_PUBLIC_API === '1';
+export const SITE_FEEDS_ENABLED =
+  process.env.NEXT_PUBLIC_SITE_FEEDS === '1';
 export const PRIORITY_ORDER_ENABLED =
   process.env.NEXT_PUBLIC_IGNORE_PRIORITY_ORDER !== '1';
 export const OG_TEXT_BOTTOM_ALIGNMENT =
@@ -365,15 +366,21 @@ export const APP_CONFIGURATION = {
   // Content
   locale: APP_LOCALE,
   hasLocale: Boolean(process.env.NEXT_PUBLIC_LOCALE),
+  domain: SITE_DOMAIN_SHORT,
   hasDomain: Boolean(
     process.env.NEXT_PUBLIC_DOMAIN ||
     // Legacy environment variable
     process.env.NEXT_PUBLIC_SITE_DOMAIN,
   ),
-  hasNavTitle: Boolean(NAV_TITLE),
-  hasNavCaption: Boolean(NAV_CAPTION),
+  metaTitle: META_TITLE,
   isMetaTitleConfigured: IS_META_TITLE_CONFIGURED,
+  metaDescription: META_DESCRIPTION,
   isMetaDescriptionConfigured: IS_META_DESCRIPTION_CONFIGURED,
+  navTitle: NAV_TITLE,
+  hasNavTitle: Boolean(CUSTOM_NAV_TITLE),
+  navCaption: NAV_CAPTION,
+  hasNavCaption: Boolean(NAV_CAPTION),
+  pageAbout: PAGE_ABOUT,
   hasPageAbout: Boolean(process.env.NEXT_PUBLIC_SITE_ABOUT),
   // AI
   hasOpenaiBaseUrl: Boolean(OPENAI_BASE_URL),
@@ -412,6 +419,7 @@ export const APP_CONFIGURATION = {
   collapseSidebarCategories: COLLAPSE_SIDEBAR_CATEGORIES,
   showKeyboardShortcutTooltips: SHOW_KEYBOARD_SHORTCUT_TOOLTIPS,
   showExifInfo: SHOW_EXIF_DATA,
+  showCategoryImageHover: SHOW_CATEGORY_IMAGE_HOVERS,
   showZoomControls: SHOW_ZOOM_CONTROLS,
   showTakenAtTimeHidden: SHOW_TAKEN_AT_TIME,
   showSocial: SHOW_SOCIAL,
@@ -426,7 +434,7 @@ export const APP_CONFIGURATION = {
   // Settings
   isGeoPrivacyEnabled: GEO_PRIVACY_ENABLED,
   arePublicDownloadsEnabled: ALLOW_PUBLIC_DOWNLOADS,
-  isPublicApiEnabled: PUBLIC_API_ENABLED,
+  areSiteFeedsEnabled: SITE_FEEDS_ENABLED,
   isPriorityOrderEnabled: PRIORITY_ORDER_ENABLED,
   isOgTextBottomAligned: OG_TEXT_BOTTOM_ALIGNMENT,
   // Internal
