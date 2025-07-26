@@ -1,39 +1,31 @@
 'use client';
 
-import { pathForLens, pathForLensImage } from '@/app/paths';
+import { pathForLens } from '@/app/path';
 import { Lens, formatLensText } from '.';
 import EntityLink, {
   EntityLinkExternalProps,
-} from '@/components/primitives/EntityLink';
+} from '@/components/entity/EntityLink';
 import IconLens from '@/components/icons/IconLens';
-import { useAppText } from '@/i18n/state/client';
-import { photoQuantityText } from '@/photo';
 
 export default function PhotoLens({
   lens,
-  countOnHover,
-  shortText,
+  longText,
   ...props
 }: {
   lens: Lens
-  countOnHover?: number
-  shortText?: boolean
+  longText?: boolean
 } & EntityLinkExternalProps) {
-  const appText = useAppText();
-
   return (
     <EntityLink
       {...props}
-      label={formatLensText(lens, shortText ? 'short' : 'medium')}
+      label={formatLensText(lens, longText ? 'long' : 'short')}
+      labelSmall={formatLensText(lens, 'short')}
       path={pathForLens(lens)}
-      tooltipImagePath={pathForLensImage(lens)}
-      tooltipCaption={countOnHover &&
-        photoQuantityText(countOnHover, appText, false)}
+      hoverPhotoQueryOptions={{ lens }}
       icon={<IconLens
         size={14}
         className="translate-x-[-0.5px]"
       />}
-      hoverEntity={countOnHover}
     />
   );
 }

@@ -1,10 +1,10 @@
 'use client';
 
 import ErrorNote from '@/components/ErrorNote';
-import FieldSetWithStatus from '@/components/FieldSetWithStatus';
+import FieldsetWithStatus from '@/components/FieldsetWithStatus';
 import Container from '@/components/Container';
 import { addUploadsAction } from '@/photo/actions';
-import { PATH_ADMIN_PHOTOS } from '@/app/paths';
+import { PATH_ADMIN_PHOTOS } from '@/app/path';
 import { Tags } from '@/tag';
 import {
   generateLocalNaivePostgresString,
@@ -19,11 +19,12 @@ import ProgressButton from '@/components/primitives/ProgressButton';
 import { UrlAddStatus } from './AdminUploadsClient';
 import PhotoTagFieldset from './PhotoTagFieldset';
 import DeleteUploadButton from './DeleteUploadButton';
-import { useAppState } from '@/state/AppState';
+import { useAppState } from '@/app/AppState';
 import { pluralize } from '@/utility/string';
 import FieldsetFavs from '@/photo/form/FieldsetFavs';
-import FieldsetHidden from '@/photo/form/FieldsetHidden';
 import IconAddUpload from '@/components/icons/IconAddUpload';
+import { PhotoFormData } from '@/photo/form';
+import FieldsetVisibility from '@/photo/visibility/FieldsetVisibility';
 
 const UPLOAD_BATCH_SIZE = 2;
 
@@ -51,10 +52,8 @@ export default function AdminBatchUploadActions({
   const { updateAdminData } = useAppState();
 
   const [showBulkSettings, setShowBulkSettings] = useState(false);
-  const [tags, setTags] = useState('');
-  const [favorite, setFavorite] = useState('false');
-  const [hidden, setHidden] = useState('false');
   const [tagErrorMessage, setTagErrorMessage] = useState('');
+  const [formData, setFormData] = useState<Partial<PhotoFormData>>({});
 
   const [buttonText, setButtonText] = useState('Add All Uploads');
   const [actionErrorMessage, setActionErrorMessage] = useState('');
@@ -69,6 +68,7 @@ export default function AdminBatchUploadActions({
     titles: string[],
     isFinalBatch: boolean,
   ) => {
+    const { tags, favorite, excludeFromFeeds, hidden } = formData;
     try {
       const stream = await addUploadsAction({
         uploadUrls: urls,
@@ -76,6 +76,7 @@ export default function AdminBatchUploadActions({
         ...showBulkSettings && {
           tags,
           favorite,
+          excludeFromFeeds,
           hidden,
         },
         takenAtLocal: generateLocalPostgresString(),
@@ -127,15 +128,15 @@ export default function AdminBatchUploadActions({
     <>
       {actionErrorMessage &&
         <ErrorNote>{actionErrorMessage}</ErrorNote>}
-      <Container padding="tight">
-        <div className="w-full space-y-4 py-1">
+      <Container padding="tight" className="p-2! sm:p-3!">
+        <div className="w-full space-y-4">
           <div className="flex">
             <div className="grow text-main">
               {showBulkSettings
                 ? `Apply to ${pluralize(uploadUrls.length, 'upload')}`
                 : `Found ${pluralize(uploadUrls.length, 'upload')}`}
             </div>
-            <FieldSetWithStatus
+            <FieldsetWithStatus
               label="Apply to All"
               type="checkbox"
               value={showBulkSettings ? 'true' : 'false'}
@@ -147,27 +148,27 @@ export default function AdminBatchUploadActions({
             <div className="space-y-4 mb-6">
               <PhotoTagFieldset
                 label="Tags"
-                tags={tags}
+                tags={formData.tags ?? ''}
                 tagOptions={uniqueTags}
-                onChange={setTags}
+                onChange={tags => setFormData(data => ({ ...data, tags }))}
                 onError={setTagErrorMessage}
                 readOnly={isAdding}
                 className="relative z-10"
               />
-              <div className="flex gap-8">
-                <FieldsetFavs
-                  value={favorite}
-                  onChange={setFavorite}
-                  readOnly={isAdding}
-                />
-                <FieldsetHidden
-                  value={hidden}
-                  onChange={setHidden}
-                  readOnly={isAdding}
-                />
-              </div>
+              <FieldsetVisibility
+                formData={formData}
+                setFormData={setFormData}
+                readOnly={isAdding}
+              />
+              <FieldsetFavs
+                className="pt-2.5 pb-2"
+                value={formData.favorite ?? 'false'}
+                onChange={favorite =>
+                  setFormData(data => ({ ...data, favorite }))}
+                readOnly={isAdding}
+              />
             </div>}
-          <div className="space-y-2">
+          <div className="flex flex-col sm:flex-row-reverse gap-2">
             <ProgressButton
               primary
               className="w-full justify-center"

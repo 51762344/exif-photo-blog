@@ -13,9 +13,10 @@ export default function MaskedScroll({
   style,
   children,
   ...props
-}: HTMLAttributes<HTMLDivElement> &
-Omit<Parameters<typeof useMaskedScroll>[0], 'ref'> &
-{ ref?: RefObject<HTMLDivElement | null> }) {
+}: {
+  ref?: RefObject<HTMLDivElement | null>
+} & HTMLAttributes<HTMLDivElement>
+& Omit<Parameters<typeof useMaskedScroll>[0], 'ref'>) {
   const refInternal = useRef<HTMLDivElement>(null);
   const ref = refProp ?? refInternal;
 

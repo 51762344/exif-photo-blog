@@ -8,11 +8,11 @@ import clsx from 'clsx/lite';
 import ResponsiveDate from '@/components/ResponsiveDate';
 import Spinner from '@/components/Spinner';
 import { FaRegCircleCheck } from 'react-icons/fa6';
-import { pathForAdminUploadUrl } from '@/app/paths';
+import { pathForAdminUploadUrl } from '@/app/path';
 import DeleteUploadButton from './DeleteUploadButton';
 import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import { isElementEntirelyInViewport } from '@/utility/dom';
-import FieldSetWithStatus from '@/components/FieldSetWithStatus';
+import FieldsetWithStatus from '@/components/FieldsetWithStatus';
 import EditButton from './EditButton';
 import AddUploadButton from './AddUploadButton';
 
@@ -75,7 +75,7 @@ export default function AdminUploadsTableRow({
       className={clsx(
         'flex items-center grow',
         'transition-opacity',
-        'rounded-md overflow-hidden',
+        'rounded-lg overflow-hidden',
         'border-medium bg-extra-dim',
         isAdding && !isComplete && status !== 'adding' && 'opacity-30',
       )}
@@ -105,7 +105,7 @@ export default function AdminUploadsTableRow({
       )}>
         <div className="flex flex-col gap-6 w-full">
           <div className="flex flex-col grow gap-2">
-            <FieldSetWithStatus
+            <FieldsetWithStatus
               label="Title"
               value={draftTitle}
               onChange={titleUpdated =>
@@ -113,6 +113,7 @@ export default function AdminUploadsTableRow({
               placeholder="Title (optional)"
               tabIndex={tabIndex}
               readOnly={isRowLoading}
+              capitalize
               hideLabel
             />
             <div className="flex items-center gap-2">
@@ -129,6 +130,7 @@ export default function AdminUploadsTableRow({
                 : <>
                   <AddUploadButton
                     url={url}
+                    title={draftTitle}
                     onAddStart={() => updateStatus({
                       status: 'adding',
                       statusMessage: 'Adding ...',
@@ -136,12 +138,14 @@ export default function AdminUploadsTableRow({
                     onAddFinish={removeRow}
                     shouldRedirectToAdminPhotos={shouldRedirectAfterAction}
                     disabled={isRowLoading}
+                    tooltipSide="bottom"
                   />
                   <EditButton
                     path={pathForAdminUploadUrl(url, draftTitle)}
                     disabled={isRowLoading}
                     tooltip="Review EXIF details before adding"
                     hideText="always"
+                    tooltipSide="bottom"
                   />
                   <DeleteUploadButton
                     urls={[url]}
@@ -153,6 +157,7 @@ export default function AdminUploadsTableRow({
                     }}
                     disabled={isRowLoading}
                     tooltip="Delete upload"
+                    tooltipSide="bottom"
                   />
                 </>}
             </div>

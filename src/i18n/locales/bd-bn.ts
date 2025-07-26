@@ -1,6 +1,8 @@
+import { I18N } from '..';
+
 export { bn as default } from 'date-fns/locale/bn';
 
-export const TEXT = {
+export const TEXT: I18N = {
   photo: {
     photo: 'ছবি',
     photoPlural: 'ছবিগুলো',
@@ -18,6 +20,7 @@ export const TEXT = {
     lensPlural: 'লেন্সগুলো',
     tag: 'ট্যাগ',
     tagPlural: 'ট্যাগসমূহ',
+    tagged: 'ট্যাগকৃত',
     taggedPhotos: 'ট্যাগকৃত ছবি',
     taggedPhrase: '{{tag}} ট্যাগ দেওয়া ছবি',
     taggedFavs: 'পছন্দের ছবি',
@@ -31,10 +34,18 @@ export const TEXT = {
     focalLengthPlural: 'ফোকাল দৈর্ঘ্যগুলো',
     focalLengthTitle: '{{focal}} ফোকাল দৈর্ঘ্য',
     focalLengthShare: '{{focal}} এ তোলা ছবিগুলো',
+    year: 'বছর',
+    yearPlural: 'বছরসমূহ',
+    yearShare: '{{year}} ছবি',
+    yearTitle: '{{year}} সালে তোলা ছবি',
+    recent: 'সাম্প্রতিক',
+    recentPlural: 'সাম্প্রতিক',
+    recentTitle: 'সাম্প্রতিক ছবি',
+    recentSubhead: '{{distance}} আগে আপলোড হয়েছে',
   },
   nav: {
     home: 'হোম',
-    feed: 'ফিড',
+    full: 'সম্পূর্ণ',
     grid: 'গ্রিড',
     admin: 'অ্যাডমিন',
     search: 'সার্চ',
@@ -43,10 +54,26 @@ export const TEXT = {
     next: 'পরবর্তী',
     nextShort: 'পরবর্তী',
   },
+  sort: {
+    sort: 'সাজান',
+    newest: 'নতুনতম',
+    oldest: 'পুরাতনতম',
+    newestFirst: 'নতুনতম প্রথমে',
+    oldestFirst: 'পুরাতনতম প্রথমে',
+    viewNewest: 'নতুনতম দেখুন',
+    viewOldest: 'পুরাতনতম দেখুন',
+    takenAt: 'তোলা হয়েছে',
+    byTakenAt: 'তোলার সময় অনুযায়ী',
+    uploadedAt: 'আপলোড হয়েছে',
+    byUploadedAt: 'আপলোডের সময় অনুযায়ী',
+    uploadedAtShort: 'আপলোড',
+    clearSort: 'সাজানো মুছুন',
+  },
   cmdk: {
     placeholder: 'ছবি, ভিউ, সেটিংস অনুসন্ধান করুন ...',
     searching: 'অনুসন্ধান হচ্ছে ...',
     noResults: 'কোনো ফলাফল পাওয়া যায়নি',
+    pages: 'পৃষ্ঠাসমূহ',
   },
   tooltip: {
     '35mm': '৩৫মিমি সমতুল্য',
@@ -89,8 +116,8 @@ export const TEXT = {
     edit: 'এডিট',
     favorite: 'পছন্দ',
     unfavorite: 'পছন্দ অপসারণ',
-    hide: 'লুকান',
-    unhide: 'দেখান',
+    private: 'ব্যক্তিগত করুন',
+    public: 'সর্বজনীন করুন',
     download: 'ডাউনলোড',
     sync: 'সিঙ্ক',
     delete: 'ডিলিট',
