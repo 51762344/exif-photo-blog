@@ -19,6 +19,7 @@ import {
   HAS_AWS_S3_STORAGE,
   HAS_VERCEL_BLOB_STORAGE,
   HAS_CLOUDFLARE_R2_STORAGE,
+  HAS_ALIYUN_OSS_STORAGE,
   HAS_MINIO_STORAGE,
 } from '@/app/config';
 import { generateNanoid } from '@/utility/nanoid';
@@ -38,6 +39,14 @@ import {
   minioPut,
   isUrlFromMinio,
 } from './minio';
+import {
+  ALIYUN_OSS_BASE_URL,
+  aliyunOssCopy,
+  aliyunOssDelete,
+  aliyunOssList,
+  aliyunOssPut,
+  isUrlFromAliyunOss,
+} from './aliyun-oss';
 import { PATH_API_PRESIGNED_URL } from '@/app/path';
 
 export type StorageListItem = {
@@ -53,6 +62,7 @@ export type StorageType =
   'vercel-blob' |
   'aws-s3' |
   'cloudflare-r2' |
+  'aliyun-oss' |
   'minio';
 
 export const generateStorageId = () => generateNanoid(16);
@@ -83,6 +93,7 @@ export const labelForStorage = (type: StorageType): string => {
     case 'vercel-blob': return 'Vercel Blob';
     case 'cloudflare-r2': return 'Cloudflare R2';
     case 'aws-s3': return 'AWS S3';
+    case 'aliyun-oss': return 'Aliyun OSS';
     case 'minio': return 'MinIO';
   }
 };
@@ -92,6 +103,7 @@ export const baseUrlForStorage = (type: StorageType) => {
     case 'vercel-blob': return VERCEL_BLOB_BASE_URL;
     case 'cloudflare-r2': return CLOUDFLARE_R2_BASE_URL_PUBLIC;
     case 'aws-s3': return AWS_S3_BASE_URL;
+    case 'aliyun-oss': return ALIYUN_OSS_BASE_URL;
     case 'minio': return MINIO_BASE_URL;
   }
 };
@@ -101,6 +113,8 @@ export const storageTypeFromUrl = (url: string): StorageType => {
     return 'cloudflare-r2';
   } else if (isUrlFromAwsS3(url)) {
     return 'aws-s3';
+  } else if (isUrlFromAliyunOss(url)) {
+    return 'aliyun-oss';
   } else if (isUrlFromMinio(url)) {
     return 'minio';
   } else {
@@ -132,6 +146,7 @@ export const uploadFileFromClient = async (
 ) => (
   CURRENT_STORAGE === 'cloudflare-r2' ||
   CURRENT_STORAGE === 'aws-s3' ||
+  CURRENT_STORAGE === 'aliyun-oss' ||
   CURRENT_STORAGE === 'minio'
 )
   ? uploadFromClientViaPresignedUrl(file, fileNameBase, extension, true)
@@ -148,6 +163,8 @@ export const putFile = (
       return cloudflareR2Put(file, fileName);
     case 'aws-s3':
       return awsS3Put(file, fileName);
+    case 'aliyun-oss':
+      return aliyunOssPut(file, fileName);
     case 'minio':
       return minioPut(file, fileName);
   }
@@ -177,6 +194,12 @@ export const copyFile = (
         destinationFileName,
         false,
       );
+    case 'aliyun-oss':
+      return aliyunOssCopy(
+        fileName,
+        destinationFileName,
+        false,
+      );
     case 'minio':
       return minioCopy(
         fileName,
@@ -195,6 +218,8 @@ export const deleteFile = (url: string) => {
       return cloudflareR2Delete(fileName);
     case 'aws-s3':
       return awsS3Delete(fileName);
+    case 'aliyun-oss':
+      return aliyunOssDelete(fileName);
     case 'minio':
       return minioDelete(fileName);
   }
@@ -224,6 +249,10 @@ export const getStorageUrlsForPrefix = async (prefix = '') => {
   }
   if (HAS_AWS_S3_STORAGE) {
     urls.push(...await awsS3List(prefix)
+      .catch(() => []));
+  }
+  if (HAS_ALIYUN_OSS_STORAGE) {
+    urls.push(...await aliyunOssList(prefix)
       .catch(() => []));
   }
   if (HAS_CLOUDFLARE_R2_STORAGE) {

@@ -21,6 +21,13 @@ const HOSTNAME_AWS_S3 =
     ? `${process.env.NEXT_PUBLIC_AWS_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com`
     : undefined;
 
+const HOSTNAME_ALIYUN_OSS =
+  process.env.NEXT_PUBLIC_ALIYUN_OSS_BUCKET &&
+  process.env.NEXT_PUBLIC_ALIYUN_OSS_REGION
+    // eslint-disable-next-line max-len
+    ? `${process.env.NEXT_PUBLIC_ALIYUN_OSS_BUCKET}.${process.env.NEXT_PUBLIC_ALIYUN_OSS_REGION}.aliyuncs.com`
+    : undefined;
+
 const HOSTNAME_MINIO =
   process.env.NEXT_PUBLIC_MINIO_DOMAIN;
 const MINIO_PORT =
@@ -49,6 +56,9 @@ if (HOSTNAME_CLOUDFLARE_R2) {
 }
 if (HOSTNAME_AWS_S3) {
   remotePatterns.push(generateRemotePattern(HOSTNAME_AWS_S3));
+}
+if (HOSTNAME_ALIYUN_OSS) {
+  remotePatterns.push(generateRemotePattern(HOSTNAME_ALIYUN_OSS));
 }
 if (HOSTNAME_MINIO) {
   remotePatterns.push(generateRemotePattern(

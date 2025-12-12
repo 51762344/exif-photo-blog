@@ -49,6 +49,7 @@ export default function AdminAppConfigurationClient({
   hasVercelBlobStorage,
   hasCloudflareR2Storage,
   hasAwsS3Storage,
+  hasAliyunOssStorage,
   hasMinioStorage,
   hasMultipleStorageProviders,
   currentStorage,
@@ -346,6 +347,18 @@ export default function AdminAppConfigurationClient({
                   {' '}
                   <AdminLink
                     href="https://github.com/sambecker/exif-photo-blog#aws-s3"
+                    externalIcon
+                  >
+                    create/configure bucket
+                  </AdminLink>
+                </>)}
+              {hasAliyunOssStorage
+                ? renderSubStatus('checked', 'Aliyun OSS: connected')
+                : renderSubStatus('optional', <>
+                  {labelForStorage('aliyun-oss')}:
+                  {' '}
+                  <AdminLink
+                    href="https://github.com/sambecker/exif-photo-blog#aliyun-oss"
                     externalIcon
                   >
                     create/configure bucket

@@ -11,6 +11,10 @@ import {
   minioClient,
   minioPutObjectCommandForKey,
 } from '@/platforms/storage/minio';
+import {
+  aliyunOssClient,
+  aliyunOssPutObjectCommandForKey,
+} from '@/platforms/storage/aliyun-oss';
 import { CURRENT_STORAGE } from '@/app/config';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -33,6 +37,10 @@ export async function GET(
       case 'minio':
         client = minioClient();
         command = minioPutObjectCommandForKey(key);
+        break;
+      case 'aliyun-oss':
+        client = aliyunOssClient();
+        command = aliyunOssPutObjectCommandForKey(key);
         break;
       default:
         client = awsS3Client();
