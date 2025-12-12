@@ -17,6 +17,8 @@ export const TEXT: I18N = {
     cameraShare: 'Foto yang diambil dengan {{camera}}',
     lens: 'Lensa',
     lensPlural: 'Lensa',
+    album: 'Album',
+    albumPlural: 'Album',
     tag: 'Tag',
     tagPlural: 'Tag',
     tagged: 'Ditandai',
@@ -52,6 +54,9 @@ export const TEXT: I18N = {
     prevShort: 'Sblm',
     next: 'Berikutnya',
     nextShort: 'Brkt',
+  },
+  footer: {
+    madeWith: 'Dibuat dengan',
   },
   sort: {
     sort: 'Urutkan',
@@ -115,6 +120,7 @@ export const TEXT: I18N = {
     managePhotos: 'Kelola Foto',
     manageCameras: 'Kelola Kamera',
     manageLenses: 'Kelola Lensa',
+    manageAlbums: 'Kelola Album',
     manageTags: 'Kelola Tag',
     manageRecipes: 'Kelola Resep',
     selectPhotos: 'Pilih Foto ...',
@@ -138,14 +144,15 @@ export const TEXT: I18N = {
     setupFirstPhoto: 'Tambahkan foto pertama Anda',
     setupConfig: 'Ubah nama situs dan pengaturan lewat file environment',
   },
-  misc: {
+  utility: {
+    more: 'Lebih banyak',
+    less: 'Lebih sedikit',
+    loadMore: 'Muat Lebih Banyak',
     loading: 'Memuat ...',
+    tryAgain: 'Coba Lagi',
     finishing: 'Menyelesaikan ...',
     uploading: 'Mengunggah',
-    repo: 'Dibuat dengan',
     copyPhrase: '{{label}} disalin',
-  },
-  utility: {
     paginate: '{{index}} dari {{count}}',
     paginateAction: '{{action}} {{index}} dari {{count}}',
   },

@@ -17,6 +17,8 @@ export const TEXT: I18N = {
     cameraShare: 'Fotografias tiradas com {{camera}}',
     lens: 'Objetiva',
     lensPlural: 'Objetivas',
+    album: 'Álbum',
+    albumPlural: 'Álbuns',
     tag: 'Etiqueta',
     tagPlural: 'Etiquetas',
     tagged: 'Etiquetado',
@@ -52,6 +54,9 @@ export const TEXT: I18N = {
     prevShort: 'Ant',
     next: 'Próximo',
     nextShort: 'Próx',
+  },
+  footer: {
+    madeWith: 'Feito com',
   },
   sort: {
     sort: 'Ordenar',
@@ -115,6 +120,7 @@ export const TEXT: I18N = {
     managePhotos: 'Gerenciar fotografias',
     manageCameras: 'Gerenciar máquinas fotográficas',
     manageLenses: 'Gerenciar objetivas',
+    manageAlbums: 'Gerenciar álbuns',
     manageTags: 'Gerenciar etiquetas',
     manageRecipes: 'Gerenciar receitas',
     selectPhotos: 'Selecionar Fotografias ...',
@@ -139,14 +145,15 @@ export const TEXT: I18N = {
     // eslint-disable-next-line max-len
     setupConfig: 'Altere o nome do sítio e outras configurações ao editar as variáveis de ambiente referenciadas em',
   },
-  misc: {
+  utility: {
+    more: 'Mais',
+    less: 'Menos',
+    loadMore: 'Carregar Mais',
     loading: 'A carregar ...',
+    tryAgain: 'Tentar Novamente',
     finishing: 'A finalizar ...',
     uploading: 'A enviar',
-    repo: 'Feito com',
     copyPhrase: '{{label}} copiado',
-  },
-  utility: {
     paginate: '{{index}} de {{count}}',
     paginateAction: '{{action}} {{index}} de {{count}}',
   },

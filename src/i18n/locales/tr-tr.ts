@@ -17,6 +17,8 @@ export const TEXT: I18N = {
     cameraShare: '{{camera}} ile çekilmiş fotoğraflar',
     lens: 'Lens',
     lensPlural: 'Lensler',
+    album: 'Albüm',
+    albumPlural: 'Albümler',
     tag: 'Etiket',
     tagPlural: 'Etiketler',
     tagged: 'Etiketli',
@@ -52,6 +54,9 @@ export const TEXT: I18N = {
     prevShort: 'Önceki',
     next: 'Sonraki',
     nextShort: 'Sonraki',
+  },
+  footer: {
+    madeWith: 'Hazırlayan:',
   },
   sort: {
     sort: 'Sırala',
@@ -115,6 +120,7 @@ export const TEXT: I18N = {
     managePhotos: 'Fotoğrafları Yönet',
     manageCameras: 'Kameraları Yönet',
     manageLenses: 'Lensleri Yönet',
+    manageAlbums: 'Albümleri Yönet',
     manageTags: 'Etiketleri Yönet',
     manageRecipes: 'Tarifleri Yönet',
     selectPhotos: 'Fotoğrafları Seç ...',
@@ -140,14 +146,15 @@ export const TEXT: I18N = {
     // eslint-disable-next-line max-len
     setupConfig: 'Site adını ve diğer ayarları değiştirmek için şu ortam değişkenlerini düzenleyin:',
   },
-  misc: {
+  utility: {
+    more: 'Daha fazla',
+    less: 'Daha az',
+    loadMore: 'Daha Fazla Yükle',
     loading: 'Yükleniyor ...',
+    tryAgain: 'Tekrar Dene',
     finishing: 'Tamamlanıyor ...',
     uploading: 'Yükleniyor',
-    repo: 'Hazırlayan:',
     copyPhrase: '{{label}} kopyalandı',
-  },
-  utility: {
     paginate: '{{count}} fotoğrafın {{index}}.si',
     paginateAction: '{{action}} - {{count}} fotoğrafın {{index}}.si',
   },

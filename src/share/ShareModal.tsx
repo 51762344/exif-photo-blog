@@ -4,10 +4,10 @@ import Modal from '@/components/Modal';
 import { TbPhotoShare } from 'react-icons/tb';
 import { clsx } from 'clsx/lite';
 import { BiCopy } from 'react-icons/bi';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useCallback, useEffect } from 'react';
 import { shortenUrl } from '@/utility/url';
 import { toastSuccess } from '@/toast';
-import { SOCIAL_KEYS } from '@/app/config';
+import { SOCIAL_NETWORKS } from '@/app/config';
 import { useAppState } from '@/app/AppState';
 import useOnPathChange from '@/utility/useOnPathChange';
 import { IoArrowUp } from 'react-icons/io5';
@@ -71,10 +71,14 @@ export default function ShareModal({
       {icon}
     </LoaderButton>;
 
-  useOnPathChange(() => setShareModalProps?.(undefined));
+  const clearShareModalProps = useCallback(() =>
+    setShareModalProps?.(undefined),
+  [setShareModalProps]);
+
+  useOnPathChange(clearShareModalProps);
 
   return (
-    <Modal onClose={() => setShareModalProps?.(undefined)}>
+    <Modal onClose={clearShareModalProps}>
       <div className="space-y-2 w-full">
         {title &&
           <div className={clsx(
@@ -114,7 +118,7 @@ export default function ShareModal({
               appText.tooltip.shareCopy,
             )}
           </div>
-          {SOCIAL_KEYS.map(key =>
+          {SOCIAL_NETWORKS.map(key =>
             <SocialButton
               key={key}
               socialKey={key}

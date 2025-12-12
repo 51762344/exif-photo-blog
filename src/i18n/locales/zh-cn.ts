@@ -17,6 +17,8 @@ export const TEXT: I18N = {
     cameraShare: '使用 {{camera}} 拍摄的照片',
     lens: '镜头',
     lensPlural: '镜头',
+    album: '相册',
+    albumPlural: '相册',
     tag: '标签',
     tagPlural: '标签',
     tagged: '已标记',
@@ -52,6 +54,9 @@ export const TEXT: I18N = {
     prevShort: '上一页',
     next: '下一页',
     nextShort: '下一页',
+  },
+  footer: {
+    madeWith: '基于',
   },
   sort: {
     sort: '排序',
@@ -115,6 +120,7 @@ export const TEXT: I18N = {
     managePhotos: '管理照片',
     manageCameras: '管理相机',
     manageLenses: '管理镜头',
+    manageAlbums: '管理相册',
     manageTags: '管理标签',
     manageRecipes: '管理预设',
     selectPhotos: '选择照片...',
@@ -138,14 +144,15 @@ export const TEXT: I18N = {
     setupFirstPhoto: '添加您的第一张照片',
     setupConfig: '通过编辑环境变量来更改站点名称和其他配置',
   },
-  misc: {
+  utility: {
+    more: '更多',
+    less: '更少',
+    loadMore: '加载更多',
     loading: '加载中...',
+    tryAgain: '重试',
     finishing: '完成中...',
     uploading: '上传中',
-    repo: '基于',
     copyPhrase: '{{label}} 已复制',
-  },
-  utility: {
     paginate: '第 {{index}} 页，共 {{count}} 页',
     paginateAction: '{{action}} 第 {{index}} 页，共 {{count}} 页',
   },

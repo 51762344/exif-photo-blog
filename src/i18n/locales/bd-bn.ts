@@ -17,6 +17,8 @@ export const TEXT: I18N = {
     cameraShare: '{{camera}} দিয়ে তোলা ছবিগুলো',
     lens: 'লেন্স',
     lensPlural: 'লেন্সগুলো',
+    album: 'অ্যালবাম',
+    albumPlural: 'অ্যালবামসমূহ',
     tag: 'ট্যাগ',
     tagPlural: 'ট্যাগসমূহ',
     tagged: 'ট্যাগকৃত',
@@ -52,6 +54,9 @@ export const TEXT: I18N = {
     prevShort: 'পূর্ব',
     next: 'পরবর্তী',
     nextShort: 'পরবর্তী',
+  },
+  footer: {
+    madeWith: 'তৈরি হয়েছে',
   },
   sort: {
     sort: 'সাজান',
@@ -115,6 +120,7 @@ export const TEXT: I18N = {
     managePhotos: 'ছবি ব্যবস্থাপনা করুন',
     manageCameras: 'ক্যামেরা ব্যবস্থাপনা করুন',
     manageLenses: 'লেন্স ব্যবস্থাপনা করুন',
+    manageAlbums: 'অ্যালবাম ব্যবস্থাপনা করুন',
     manageTags: 'ট্যাগ ব্যবস্থাপনা করুন',
     manageRecipes: 'রেসিপি ব্যবস্থাপনা করুন',
     selectPhotos: 'ছবি নির্বাচন করুন ...',
@@ -139,14 +145,15 @@ export const TEXT: I18N = {
     // eslint-disable-next-line max-len
     setupConfig: 'পরিবেশ ভেরিয়েবল সম্পাদনা করে সাইটের নাম এবং অন্যান্য কনফিগারেশন পরিবর্তন করুন',
   },
-  misc: {
+  utility: {
+    more: 'আরো',
+    less: 'কম',
+    loadMore: 'আরো লোড করুন',
     loading: 'লোড হচ্ছে ...',
+    tryAgain: 'আবার চেষ্টা করুন',
     finishing: 'সম্পন্ন হচ্ছে ...',
     uploading: 'আপলোড হচ্ছে',
-    repo: 'তৈরি হয়েছে',
     copyPhrase: '{{label}} কপি হয়েছে',
-  },
-  utility: {
     paginate: '{{index}} / {{count}}',
     paginateAction: '{{action}} - {{index}} / {{count}}',
   },

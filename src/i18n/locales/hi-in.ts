@@ -17,6 +17,8 @@ export const TEXT: I18N = {
     cameraShare: '{{camera}} पर लिया गया फोटो',
     lens: 'लेंस',
     lensPlural: 'लेंस',
+    album: 'एल्बम',
+    albumPlural: 'एल्बम',
     tag: 'टैग',
     tagPlural: 'टैग्स',
     tagged: 'टैग किया गया',
@@ -52,6 +54,9 @@ export const TEXT: I18N = {
     prevShort: 'पिछला',
     next: 'अगला',
     nextShort: 'अगला',
+  },
+  footer: {
+    madeWith: 'निर्मित',
   },
   sort: {
     sort: 'क्रमबद्ध करें',
@@ -115,6 +120,7 @@ export const TEXT: I18N = {
     managePhotos: 'फोटो प्रबंधित करें',
     manageCameras: 'कैमरे प्रबंधित करें',
     manageLenses: 'लेंस प्रबंधित करें',
+    manageAlbums: 'एल्बम प्रबंधित करें',
     manageTags: 'टैग प्रबंधित करें',
     manageRecipes: 'रेसिपी प्रबंधित करें',
     selectPhotos: 'फोटो चुनें...',
@@ -140,14 +146,15 @@ export const TEXT: I18N = {
     // eslint-disable-next-line max-len
     setupConfig: 'साइट का नाम और अन्य कॉन्फ़िगरेशन बदलने के लिए पर्यावरण चर संपादित करें',
   },
-  misc: {
+  utility: {
+    more: 'और',
+    less: 'कम',
+    loadMore: 'और लोड करें',
     loading: 'लोड हो रहा है...',
+    tryAgain: 'फिर से कोशिश करें',
     finishing: 'समाप्त कर रहे हैं...',
     uploading: 'अपलोड हो रहा है',
-    repo: 'निर्मित',
     copyPhrase: '{{label}} कॉपी किया गया',
-  },
-  utility: {
     paginate: '{{index}} / {{count}}',
     paginateAction: '{{action}} - {{index}} / {{count}}',
   },

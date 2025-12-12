@@ -2,7 +2,7 @@
 
 import ScoreCard from '@/components/ScoreCard';
 import ScoreCardRow from '@/components/ScoreCardRow';
-import { dateRangeForPhotos } from '@/photo';
+import { formattedDateRangeForPhotos } from '@/photo';
 import { FaArrowRight, FaCircleInfo, FaRegCalendar } from 'react-icons/fa6';
 import { MdAspectRatio } from 'react-icons/md';
 import { PiWarningBold } from 'react-icons/pi';
@@ -48,6 +48,8 @@ import IconPhoto from '@/components/icons/IconPhoto';
 import { HiOutlineDocumentText } from 'react-icons/hi';
 import { ReactNode } from 'react';
 import MaskedScroll from '@/components/MaskedScroll';
+import IconNext from '@/components/icons/IconNext';
+import Link from 'next/link';
 
 const DEBUG_COMMIT_SHA = '4cd29ed';
 const DEBUG_COMMIT_MESSAGE = 'Long commit message for debugging purposes';
@@ -62,12 +64,21 @@ const readmeAnchor = (anchor: string) =>
     README/{anchor}
   </AdminLink>;
 
-const renderLabeledEnvVar = (label: string, envVar: string, value?: string) =>
+const renderLabeledEnvVar = (
+  label: string,
+  variable: string,
+  value?: string,
+  icon?: ReactNode,
+) =>
   <div className="flex flex-col gap-0.5">
     <span className="text-xs uppercase font-medium tracking-wider">
       {label}
     </span>
-    <EnvVar variable={envVar} value={value} />
+    {icon
+      ? <div className="flex items-center gap-1">
+        {icon} <EnvVar {...{ variable, value }} />
+      </div>
+      :<EnvVar {...{ variable, value }} />}
   </div>;
 
 const renderHighlightText = (
@@ -87,8 +98,24 @@ const renderHighlightText = (
     {text}
   </span>;
 
+const renderWarningIconLarge =
+  <PiWarningBold
+    size={17}
+    className={clsx(
+      'translate-x-[0.5px]',
+      TEXT_COLOR_WARNING,
+    )}
+  />;
+
+const renderWarningIconSmall =
+  <PiWarningBold
+    size={14}
+    className="translate-y-[0.5px] text-extra-dim"
+  />;
+
 export default function AdminAppInsightsClient({
   codeMeta,
+  nextVersion,
   insights,
   usedDeprecatedEnvVars,
   photoStats: {
@@ -105,6 +132,7 @@ export default function AdminAppInsightsClient({
   },
 }: {
   codeMeta?: Awaited<ReturnType<typeof getGitHubMetaForCurrentApp>>
+  nextVersion: string
   insights: ReturnType<typeof getAllInsights>
   usedDeprecatedEnvVars: typeof USED_DEPRECATED_ENV_VARS
   photoStats: PhotoStats
@@ -116,16 +144,18 @@ export default function AdminAppInsightsClient({
     noFork,
     forkBehind,
     noAi,
-    noAiRateLimiting,
+    noRateLimiting,
     noConfiguredDomain,
-    noConfiguredMeta,
+    noConfiguredMetaTitle,
+    noConfiguredMetaDescription,
     photosNeedSync,
     photoMatting,
     gridFirst,
     noStaticOptimization,
   } = insights;
 
-  const { descriptionWithSpaces } = dateRangeForPhotos(undefined, dateRange);
+  const { descriptionWithSpaces } =
+    formattedDateRangeForPhotos(undefined, dateRange);
 
   const branchLink = <a
     className="truncate"
@@ -250,19 +280,23 @@ export default function AdminAppInsightsClient({
               </span>
             </a>}
           />
+          <ScoreCardRow
+            icon={<IconNext className="self-start translate-y-px" />}
+            content={<Link
+              // eslint-disable-next-line max-len
+              href={`https://github.com/vercel/next.js/releases/tag/v${nextVersion}`}
+              target="blank"
+            >
+              Next.js {nextVersion}
+            </Link>}
+          />
         </ScoreCard>
       </>}
       <ScoreCard title="Template recommendations">
         {(hasTemplateRecommendations(insights) || debug)
           ? <>
             {(deprecatedEnvVars || debug) && <ScoreCardRow
-              icon={<PiWarningBold
-                size={17}
-                className={clsx(
-                  'translate-x-[0.5px]',
-                  TEXT_COLOR_WARNING,
-                )}
-              />}
+              icon={renderWarningIconLarge}
               content={isExpanded => renderHighlightText(
                 'Update environment variables',
                 'yellow',
@@ -281,7 +315,13 @@ export default function AdminAppInsightsClient({
                       )}
                       direction="horizontal"
                     >
-                      <div className="text-xs font-medium">{old}</div>
+                      <div className={clsx(
+                        'inline-flex items-center gap-1.5',
+                        'text-xs font-medium',
+                      )}>
+                        {renderWarningIconSmall}
+                        {old}
+                      </div>
                       <FaArrowRight
                         size={11}
                         className="shrink-0 text-extra-dim"
@@ -292,33 +332,21 @@ export default function AdminAppInsightsClient({
                 </div>
               </div>}
             />}
-            {(noAiRateLimiting || debug) && <ScoreCardRow
-              icon={<PiWarningBold
-                size={17}
-                className={clsx(
-                  'translate-x-[0.5px]',
-                  TEXT_COLOR_WARNING,
-                )}
-              />}
+            {(noRateLimiting || debug) && <ScoreCardRow
+              icon={renderWarningIconLarge}
               content={isExpanded => renderHighlightText(
-                'Enable AI rate limiting',
+                'Enable rate limiting',
                 'yellow',
                 !isExpanded,
               )}
               expandContent={<>
                 Create Upstash Redis store from storage tab on
                 Vercel dashboard and link to this project to
-                prevent abuse by enabling rate limiting.
+                prevent unexpected usage by enabling rate limiting.
               </>}
             />}
             {(noConfiguredDomain || debug) && <ScoreCardRow
-              icon={<PiWarningBold
-                size={17}
-                className={clsx(
-                  'translate-x-[0.5px]',
-                  TEXT_COLOR_WARNING,
-                )}
-              />}
+              icon={renderWarningIconLarge}
               content={isExpanded => renderHighlightText(
                 'Configure domain',
                 'yellow',
@@ -334,7 +362,11 @@ export default function AdminAppInsightsClient({
                 />
               </>}
             />}
-            {(noConfiguredMeta || debug) && <ScoreCardRow
+            {(
+              noConfiguredMetaTitle ||
+              noConfiguredMetaDescription ||
+              debug
+            ) && <ScoreCardRow
               icon={<HiOutlineDocumentText
                 size={18}
                 className="translate-x-[1px] translate-y-[-1px]"
@@ -345,11 +377,17 @@ export default function AdminAppInsightsClient({
                 and site description (visible in search results):
                 {' '}
                 <div className="flex flex-col gap-y-4 mt-3">
-                  {renderLabeledEnvVar(
+                  {(
+                    noConfiguredMetaTitle ||
+                    debug
+                  ) && renderLabeledEnvVar(
                     'Site title',
                     'NEXT_PUBLIC_META_TITLE',
                   )}
-                  {renderLabeledEnvVar(
+                  {(
+                    noConfiguredMetaDescription ||
+                    debug
+                  ) && renderLabeledEnvVar(
                     'Site description',
                     'NEXT_PUBLIC_META_DESCRIPTION',
                   )}
