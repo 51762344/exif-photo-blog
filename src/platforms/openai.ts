@@ -1,7 +1,7 @@
-import { generateText, streamText, generateObject } from 'ai';
+import { generateText, Output, streamText } from 'ai';
 import { createStreamableValue } from '@ai-sdk/rsc';
 import { createOpenAI } from '@ai-sdk/openai';
-import { OPENAI_BASE_URL, OPENAI_SECRET_KEY } from '@/app/config';
+import { OPENAI_BASE_URL, OPENAI_MODEL, OPENAI_SECRET_KEY } from '@/app/config';
 import { removeBase64Prefix } from '@/utility/image';
 import { cleanUpAiTextResponse } from '@/photo/ai';
 import {
@@ -9,13 +9,20 @@ import {
 } from '@/platforms/rate-limit';
 import { z } from 'zod';
 
+type OpenAIModel = Parameters<NonNullable<typeof openai>>[0];
+
+const MODEL_DEFAULT: OpenAIModel = 'gpt-5.2';
+const MODEL_COMPATIBLE: OpenAIModel = 'gpt-4o';
+
+const MODEL: OpenAIModel = OPENAI_MODEL === 'compatible'
+  ? MODEL_COMPATIBLE
+  : (OPENAI_MODEL || MODEL_DEFAULT);
+
 const checkRateLimitAndThrow = (isBatch?: boolean) =>
   _checkRateLimitAndThrow({
     identifier: 'openai-image-query',
     ...isBatch && { tokens: 1200, duration: '1d' },
   });
-
-const MODEL: Parameters<NonNullable<typeof openai>>[0] = 'gpt-5.1';
 
 const openai = OPENAI_SECRET_KEY
   ? createOpenAI({
@@ -93,8 +100,9 @@ export const generateOpenAiImageObjectQuery = async <T extends z.ZodSchema>(
   await checkRateLimitAndThrow(isBatch);
 
   if (openai) {
-    return generateObject({
+    return generateText({
       model: openai(MODEL),
+      output: Output.object({ schema }),
       messages: [{
         'role': 'user',
         'content': [
@@ -107,9 +115,8 @@ export const generateOpenAiImageObjectQuery = async <T extends z.ZodSchema>(
           },
         ],
       }],
-      schema,
     }).then(result => Object.fromEntries(Object
-      .entries(result.object || {})
+      .entries(result.output || {})
       .map(([k, v]) => [k, cleanUpAiTextResponse(v as string)]),
     ) as z.infer<T>);
   } else {

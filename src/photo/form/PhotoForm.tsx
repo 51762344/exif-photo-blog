@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 import {
+  FIELDS_TO_NOT_TOAST,
   FIELDS_WITH_JSON,
   FORM_METADATA_ENTRIES_BY_SECTION,
   FORM_SECTIONS,
@@ -26,7 +27,11 @@ import { createPhotoAction, updatePhotoAction } from '../actions';
 import SubmitButtonWithStatus from '@/components/SubmitButtonWithStatus';
 import Link from 'next/link';
 import { clsx } from 'clsx/lite';
-import { PATH_ADMIN_PHOTOS, PATH_ADMIN_UPLOADS } from '@/app/path';
+import {
+  PARAM_REDIRECT,
+  PATH_ADMIN_PHOTOS,
+  PATH_ADMIN_UPLOADS,
+} from '@/app/path';
 import { toastSuccess, toastWarning } from '@/toast';
 import { getDimensionsFromSize } from '@/utility/size';
 import ImageWithFallback from '@/components/image/ImageWithFallback';
@@ -66,13 +71,15 @@ import { TbPhoto } from 'react-icons/tb';
 import { Albums } from '@/album';
 import FieldsetAlbum from '@/album/FieldsetAlbum';
 import Form from 'next/form';
+import { useRouter, useSearchParams } from 'next/navigation';
+import DateTimePicker from '@/components/DateTimePicker';
 
 const THUMBNAIL_SIZE = 300;
 
 export default function PhotoForm({
   type = 'create',
   initialPhotoForm,
-  photoStorageUrls,
+  photoStorageUrls = [],
   updatedExifData,
   updatedBlurData,
   photoAlbumTitles = [],
@@ -102,11 +109,18 @@ export default function PhotoForm({
   onFormDataChange?: (formData: Partial<PhotoFormData>) => void,
   onFormStatusChange?: (pending: boolean) => void
 }) {
+  const router = useRouter();
+
+  const redirectParam = useSearchParams().get(PARAM_REDIRECT);
+
   const [formData, setFormData] =
     useState<Partial<PhotoFormData>>(initialPhotoForm);
   const [formErrors, setFormErrors] =
     useState(getFormErrors(initialPhotoForm));
   const [formActionErrorMessage, setFormActionErrorMessage] = useState('');
+
+  const [detectedFilm, setDetectedFilm] =
+    useState(initialPhotoForm.film);
 
   const [albumTitles, setAlbumTitles] = useState(photoAlbumTitles
     .sort((a, b) => a.localeCompare(b))
@@ -168,8 +182,14 @@ export default function PhotoForm({
         };
       });
 
-      if (changedKeys.length > 0) {
-        const fields = convertFormKeysToLabels(changedKeys);
+      if (updatedExifData?.film) {
+        setDetectedFilm(updatedExifData.film);
+      }
+
+      const keysToToast = changedKeys.filter(key =>
+        !FIELDS_TO_NOT_TOAST.includes(key));
+      if (keysToToast.length > 0) {
+        const fields = convertFormKeysToLabels(keysToToast);
         toastSuccess(`Updated EXIF fields: ${fields.join(', ')}`, 8000);
       } else {
         toastWarning('No new EXIF data found');
@@ -284,28 +304,40 @@ export default function PhotoForm({
   const footerForField = (key: keyof PhotoFormData) => {
     switch (key) {
       case 'url':
-        return photoStorageUrls && photoStorageUrls.length > 1
-          ? <SmallDisclosure label="Optimized file set">
-            <div className="space-y-1">
-              {photoStorageUrls.map(({ url, size }) => {
-                const { fileName } = getFileNamePartsFromStorageUrl(url);
-                return <div
-                  key={url}
-                  className="flex items-center gap-2"
-                >
-                  <TbPhoto className="translate-y-[1px] text-medium" />
-                  <Link
-                    href={url}
-                    target="_blank"
+        return type === 'edit' && photoStorageUrls.length === 0
+          ? <span className="text-error">
+            No storage found for photo
+          </span>
+          : photoStorageUrls.length > 1
+            ? <SmallDisclosure label="Optimized file set">
+              <div className="space-y-1">
+                {photoStorageUrls.map(({ url, size }) => {
+                  const {
+                    fileName,
+                    fileModifier,
+                  } = getFileNamePartsFromStorageUrl(url);
+                  return <div
+                    key={url}
+                    className="flex items-center gap-2"
                   >
-                    {fileName}
-                  </Link>
-                  <span className="text-dim">{size}</span>
-                </div>;
-              })}
-            </div>
-          </SmallDisclosure>
-          : undefined;
+                    <TbPhoto className="translate-y-[1px] text-medium" />
+                    <Link
+                      href={url}
+                      target="_blank"
+                    >
+                      {fileName}
+                    </Link>
+                    <span className="text-dim">
+                      {size}
+                      {/* Show dimensions for original file when available */}
+                      {!fileModifier && formData.width && formData.height &&
+                        ` @ ${formData.width}×${formData.height}`}
+                    </span>
+                  </div>;
+                })}
+              </div>
+            </SmallDisclosure>
+            : null;
     }
   };
 
@@ -342,7 +374,12 @@ export default function PhotoForm({
     FORM_METADATA_ENTRIES_BY_SECTION(
       convertTagsForForm(uniqueTags, appText),
       convertRecipesForForm(uniqueRecipes),
-      convertFilmsForForm(uniqueFilms, isMakeFujifilm(formData.make)),
+      convertFilmsForForm(
+        uniqueFilms,
+        isMakeFujifilm(formData.make),
+        detectedFilm,
+        formData.make,
+      ),
       aiContent !== undefined,
       shouldStripGpsData,
     ), [
@@ -351,6 +388,7 @@ export default function PhotoForm({
     uniqueRecipes,
     uniqueFilms,
     formData.make,
+    detectedFilm,
     aiContent,
     shouldStripGpsData,
   ]);
@@ -456,6 +494,9 @@ export default function PhotoForm({
           ? createPhotoAction
           : updatePhotoAction
         )(data)
+          .then(() => {
+            router.push(redirectParam ?? PATH_ADMIN_PHOTOS);
+          })
           .catch(e => {
             if (e.message !== 'NEXT_REDIRECT') {
               setFormActionErrorMessage(e.message);
@@ -618,6 +659,28 @@ export default function PhotoForm({
                             initialPhotoForm,
                             formData,
                           )}
+                        />;
+                      case 'takenAt':
+                        return <FieldsetWithStatus
+                          key={key}
+                          {...fieldProps}
+                          accessory={<DateTimePicker
+                            value={formData.takenAt ?? ''}
+                            onChange={fieldProps.onChange}
+                            type="utc"
+                            readOnly={fieldProps.readOnly}
+                          />}
+                        />;
+                      case 'takenAtNaive':
+                        return <FieldsetWithStatus
+                          key={key}
+                          {...fieldProps}
+                          accessory={<DateTimePicker
+                            value={formData.takenAtNaive ?? ''}
+                            onChange={fieldProps.onChange}
+                            type="naive"
+                            readOnly={fieldProps.readOnly}
+                          />}
                         />;
                       case 'favorite':
                         return <FieldsetFavs

@@ -4,7 +4,9 @@ import {
   DeleteObjectCommand,
   ListObjectsCommand,
   PutObjectCommand,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { StorageListResponse, generateStorageId } from '.';
 import { formatBytes } from '@/utility/number';
 
@@ -84,5 +86,17 @@ export const aliyunOssDelete = async (Key: string) => {
     Bucket: ALIYUN_OSS_BUCKET,
     Key,
   }));
+};
+
+export const aliyunOssGetSignedUrl = (
+  Key: string,
+  method: 'GET' | 'PUT',
+  expiresIn: number,
+) => {
+  const client = aliyunOssClient();
+  const command = method === 'GET'
+    ? new GetObjectCommand({ Bucket: ALIYUN_OSS_BUCKET, Key })
+    : new PutObjectCommand({ Bucket: ALIYUN_OSS_BUCKET, Key, ACL: 'public-read' });
+  return getSignedUrl(client, command, { expiresIn });
 };
 
